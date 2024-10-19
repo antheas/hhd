@@ -528,3 +528,14 @@ TOUCHPAD_BUTTON_MAP: dict[Button, int] = {
     "touchpad_right": B("BTN_RIGHT"),
     "touchpad_left": B("BTN_LEFT"),
 }
+
+LEFT_TOUCHPAD_AXIS_MAP: dict[Axis, AX] = {
+    "left_touchpad_x": AX(B("ABS_X"), 1023, bounds=(0, 2048)),
+    "left_touchpad_y": AX(B("ABS_Y"), 1023, bounds=(0, 2048)),
+}
+
+LEFT_TOUCHPAD_BUTTON_MAP: dict[Button, int] = {
+    "left_touchpad_touch": B("BTN_TOUCH"),
+    "left_touchpad_right": B("BTN_RIGHT"),
+    "left_touchpad_left": B("BTN_LEFT"),
+}
