@@ -52,6 +52,10 @@ REPORT_MIN_DELAY = 1 / DS5_EDGE_MAX_REPORT_FREQ
 DS5_EDGE_MIN_TIMESTAMP_INTERVAL = 1500
 MAX_IMU_SYNC_DELAY = 2
 
+LEFT_TOUCH_CORRECTION = correct_touchpad(
+    DS5_EDGE_TOUCH_WIDTH, DS5_EDGE_TOUCH_HEIGHT, 1, "left"
+)
+
 logger = logging.getLogger(__name__)
 
 _cache = ControllerCache()
@@ -297,7 +301,7 @@ class Dualsense(Producer, Consumer):
                                 "red": red,
                                 "blue": blue,
                                 "green": green,
-                                "red2": 0, # disable for OXP
+                                "red2": 0,  # disable for OXP
                                 "blue2": 0,
                                 "green2": 0,
                                 "oxp": None,
@@ -433,6 +437,28 @@ class Dualsense(Producer, Consumer):
                                 (y & 0x0F) << 4
                             )
                             new_rep[self.ofs + 35] = y >> 4
+                        case "left_touchpad_x":
+                            tc = LEFT_TOUCH_CORRECTION
+                            x = int(
+                                min(max(ev["value"], tc.x_clamp[0]), tc.x_clamp[1])
+                                * tc.x_mult
+                                + tc.x_ofs
+                            )
+                            new_rep[self.ofs + 36] = x & 0xFF
+                            new_rep[self.ofs + 37] = (new_rep[self.ofs + 34] & 0xF0) | (
+                                x >> 8
+                            )
+                        case "left_touchpad_y":
+                            tc = LEFT_TOUCH_CORRECTION
+                            y = int(
+                                min(max(ev["value"], tc.y_clamp[0]), tc.y_clamp[1])
+                                * tc.y_mult
+                                + tc.y_ofs
+                            )
+                            new_rep[self.ofs + 37] = (new_rep[self.ofs + 34] & 0x0F) | (
+                                (y & 0x0F) << 4
+                            )
+                            new_rep[self.ofs + 38] = y >> 4
                         case "gyro_ts" | "accel_ts" | "imu_ts":
                             send = True
                             self.last_imu = time.perf_counter()
@@ -488,7 +514,7 @@ class Dualsense(Producer, Consumer):
                         )
                         set_button(
                             new_rep,
-                            self.btn_map["touchpad_touch2"],
+                            self.btn_map["left_touchpad_touch"],
                             ev["value"],
                         )
 

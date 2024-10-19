@@ -50,7 +50,10 @@ def get_outputs(
     desktop_disable = False
     if touch_conf is not None:
         touchpad = touch_conf["mode"].to(str)
-        correction = touch_conf["controller.correction"].to(TouchpadCorrectionType)
+        if dual_touchpad:
+            correction = "right"
+        else:
+            correction = touch_conf["controller.correction"].to(TouchpadCorrectionType)
         if touchpad in ("emulation", "controller"):
             desktop_disable = touch_conf[touchpad]["desktop_disable"].to(bool)
     else:
