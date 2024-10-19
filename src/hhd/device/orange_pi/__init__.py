@@ -56,7 +56,7 @@ class GenericControllersPlugin(HHDPlugin):
         if self.dconf.get("touchpad", False):
             base["controllers"]["handheld"]["children"][
                 "touchpad"
-            ] = get_touchpad_config()
+            ] = get_touchpad_config(dual_touchpad=True)
         else:
             del base["controllers"]["handheld"]["children"]["touchpad"]
 

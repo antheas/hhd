@@ -22,9 +22,11 @@ def get_vendor():
         return "Uknown"
 
 
-def get_touchpad_config():
-    return load_relative_yaml("touchpad.yml")
-
+def get_touchpad_config(dual_touchpad: bool = False):
+    conf = load_relative_yaml("touchpad.yml")
+    if dual_touchpad:
+        del conf["modes"]['controller']["children"]["correction"]
+    return conf
 
 def get_gyro_config(
     mapping: dict[str, tuple[Axis, str | None, float, float | None]] | None
