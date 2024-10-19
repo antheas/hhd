@@ -22,6 +22,8 @@ from .const import (
     DEFAULT_MAPPINGS,
     OPI_TOUCHPAD_AXIS_MAP,
     OPI_TOUCHPAD_BUTTON_MAP,
+    LEFT_TOUCHPAD_AXIS_MAP,
+    LEFT_TOUCHPAD_BUTTON_MAP,
 )
 
 ERROR_DELAY = 1
@@ -151,12 +153,23 @@ def controller_loop(
     d_touch = GenericGamepadEvdev(
         vid=[TOUCHPAD_VID],
         pid=[TOUCHPAD_PID],
-        name=[re.compile(".+Touchpad")],
+        name=[re.compile("OPI0001.+Touchpad")],
         capabilities={EC("EV_KEY"): [EC("BTN_MOUSE")]},
         btn_map=OPI_TOUCHPAD_BUTTON_MAP,
         axis_map=OPI_TOUCHPAD_AXIS_MAP,
         aspect_ratio=1,
-        required=False,
+        required=True,
+    )
+
+    d_touch_left = GenericGamepadEvdev(
+        vid=[TOUCHPAD_VID],
+        pid=[TOUCHPAD_PID],
+        name=[re.compile("OPI0002.+Touchpad")],
+        capabilities={EC("EV_KEY"): [EC("BTN_MOUSE")]},
+        btn_map=LEFT_TOUCHPAD_BUTTON_MAP,
+        axis_map=LEFT_TOUCHPAD_AXIS_MAP,
+        aspect_ratio=1,
+        required=True,
     )
 
     # d_volume_btn = UInputDevice(
@@ -237,6 +250,7 @@ def controller_loop(
                 prepare(d_imu)
         if has_touchpad and d_params["uses_touch"]:
             prepare(d_touch)
+            prepare(d_touch_left)
         prepare(d_kbd_1)
         prepare(d_kbd_2)
         for d in d_producers:

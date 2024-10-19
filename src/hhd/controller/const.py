@@ -53,8 +53,6 @@ AbsAxis = Literal[
     "right_gyro_y",
     "right_gyro_z",
     "right_imu_ts",
-    "right_touchpad_x",
-    "right_touchpad_y",
 ]
 
 RelAxis = Literal["mouse_x", "mouse_y", "mouse_wheel", "mouse_wheel_hires"]
@@ -96,6 +94,9 @@ GamepadButton = Literal[
     "touchpad_touch",
     "touchpad_left",
     "touchpad_right",
+    "left_touchpad_touch",
+    "left_touchpad_left",
+    "left_touchpad_right",
 ]
 
 MouseButton = Literal["btn_left", "btn_right", "btn_middle", "btn_side", "btn_extra"]

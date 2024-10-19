@@ -17,6 +17,21 @@ OPI_TOUCHPAD_AXIS_MAP: dict[int, Axis] = to_map(
     }
 )
 
+LEFT_TOUCHPAD_BUTTON_MAP: dict[int, Button] = to_map(
+    {
+        "left_touchpad_touch": [B("BTN_TOOL_FINGER")],  # also BTN_TOUCH
+        "left_touchpad_right": [B("BTN_TOOL_DOUBLETAP"), B("BTN_RIGHT")],
+        "left_touchpad_left": [B("BTN_MOUSE")],
+    }
+)
+
+LEFT_TOUCHPAD_AXIS_MAP: dict[int, Axis] = to_map(
+    {
+        "left_touchpad_x": [B("ABS_X")],  # also ABS_MT_POSITION_X
+        "left_touchpad_y": [B("ABS_Y")],  # also ABS_MT_POSITION_Y
+    }
+)
+
 DEFAULT_MAPPINGS: dict[str, tuple[Axis, str | None, float, float | None]] = {
     "accel_x": ("accel_x", "accel", 1, None),
     "accel_y": ("accel_z", "accel", 1, None),
