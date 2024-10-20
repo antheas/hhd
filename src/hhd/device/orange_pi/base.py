@@ -153,7 +153,7 @@ def controller_loop(
     d_touch = GenericGamepadEvdev(
         vid=[TOUCHPAD_VID],
         pid=[TOUCHPAD_PID],
-        name=[re.compile("OPI0001.+Touchpad")],
+        name=[re.compile("OPI0002.+Touchpad")],
         capabilities={EC("EV_KEY"): [EC("BTN_MOUSE")]},
         btn_map=OPI_TOUCHPAD_BUTTON_MAP,
         axis_map=OPI_TOUCHPAD_AXIS_MAP,
@@ -164,7 +164,7 @@ def controller_loop(
     d_touch_left = GenericGamepadEvdev(
         vid=[TOUCHPAD_VID],
         pid=[TOUCHPAD_PID],
-        name=[re.compile("OPI0002.+Touchpad")],
+        name=[re.compile("OPI0001.+Touchpad")],
         capabilities={EC("EV_KEY"): [EC("BTN_MOUSE")]},
         btn_map=LEFT_TOUCHPAD_BUTTON_MAP,
         axis_map=LEFT_TOUCHPAD_AXIS_MAP,
