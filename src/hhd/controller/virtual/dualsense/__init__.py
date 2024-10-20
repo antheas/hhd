@@ -444,8 +444,8 @@ class Dualsense(Producer, Consumer):
                                 * tc.x_mult
                                 + tc.x_ofs
                             )
-                            new_rep[self.ofs + 36] = x & 0xFF
-                            new_rep[self.ofs + 37] = (new_rep[self.ofs + 34] & 0xF0) | (
+                            new_rep[self.ofs + 37] = x & 0xFF
+                            new_rep[self.ofs + 38] = (new_rep[self.ofs + 34] & 0xF0) | (
                                 x >> 8
                             )
                         case "left_touchpad_y":
@@ -455,10 +455,10 @@ class Dualsense(Producer, Consumer):
                                 * tc.y_mult
                                 + tc.y_ofs
                             )
-                            new_rep[self.ofs + 37] = (new_rep[self.ofs + 34] & 0x0F) | (
+                            new_rep[self.ofs + 38] = (new_rep[self.ofs + 34] & 0x0F) | (
                                 (y & 0x0F) << 4
                             )
-                            new_rep[self.ofs + 38] = y >> 4
+                            new_rep[self.ofs + 39] = y >> 4
                         case "gyro_ts" | "accel_ts" | "imu_ts":
                             send = True
                             self.last_imu = time.perf_counter()
