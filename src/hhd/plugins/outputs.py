@@ -22,6 +22,8 @@ from ..controller.virtual.uinput import (
 from .plugin import is_steam_gamepad_running, open_steam_kbd
 from .utils import load_relative_yaml
 
+from .powerbutton import longpress
+
 logger = logging.getLogger(__name__)
 
 HORI_ENABLED = os.environ.get("HHD_HORI_STEAM", "0") == "1"
@@ -42,6 +44,9 @@ def get_outputs(
     producers = []
     consumers = []
     nintendo_qam = False
+
+    # Hack: Powerbutton long press consumer 
+    consumers.append(longpress.instance)
 
     controller = conf["mode"].to(str)
     desktop_disable = False

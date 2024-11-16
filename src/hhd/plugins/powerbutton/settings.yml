@@ -7,3 +7,9 @@ settings:
       title: Steam Powerbutton Handler
       hint: "Enables the Steam Powerbutton handler (responsible for the wink and powerbutton menu)."
       default: True
+    
+    pb_longpress_hack:
+      type: bool
+      title: Powerbutton Long Press Hack
+      hint: "A hack to fix powerbutton long press for Ayaneo Air (maybe more)."
+      default: False

@@ -1,7 +1,9 @@
+from functools import partial
 import logging
 from typing import TYPE_CHECKING, Any, Sequence
 
 from hhd.plugins import Config, Context, HHDPlugin, load_relative_yaml
+from . import longpress
 
 logger = logging.getLogger(__name__)
 
@@ -24,7 +26,8 @@ class PowerbuttondPlugin(HHDPlugin):
         self.log = "pbtn"
         self.cfg = cfg
         self.t = None
-        self.event = None
+        self.stop_event = None
+        self.long_press = None
 
     def open(
         self,
@@ -41,6 +44,14 @@ class PowerbuttondPlugin(HHDPlugin):
         return d
 
     def update(self, conf: Config):
+        if conf["hhd.settings.pb_longpress_hack"].to(bool):
+            from .base import run_steam_longpress
+            self.long_press = longpress.event
+            longpress.callback = partial(run_steam_longpress, self.context)
+        else:
+            self.long_press = None
+            longpress.callback = None
+
         if conf["hhd.settings.powerbuttond"].to(bool) and not self.started:
             self.start()
         elif not conf["hhd.settings.powerbuttond"].to(bool) and self.started:
@@ -50,19 +61,19 @@ class PowerbuttondPlugin(HHDPlugin):
     def start(self):
         from .base import power_button_run
 
-        self.event = Event()
+        self.stop_event = Event()
         self.t = Thread(
-            target=power_button_run, args=(self.cfg, self.context, self.event)
+            target=power_button_run, args=(self.cfg, self.context, self.stop_event, self.long_press)
         )
         self.t.start()
         self.started = True
 
     def stop(self):
-        if not self.event or not self.t:
+        if not self.stop_event or not self.t:
             return
-        self.event.set()
+        self.stop_event.set()
         self.t.join()
-        self.event = None
+        self.stop_event = None
         self.t = None
         self.started = False
 

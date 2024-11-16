@@ -72,7 +72,7 @@ AYANEO_AIR_PLUS_MAPPINGS: dict[str, tuple[Axis, str | None, float, float | None]
     "timestamp": ("imu_ts", None, 1, None),
 }
 
-AYANEO_BTN_MAPPINGS: dict[int, str] = {
+AYANEO_DEFAULT_BTN_MAPPINGS: dict[int, str] = {
     # Volume buttons come from the same keyboard
     B("KEY_VOLUMEUP"): "key_volumeup",
     B("KEY_VOLUMEDOWN"): "key_volumedown",
@@ -91,14 +91,23 @@ AYANEO_BTN_MAPPINGS: dict[int, str] = {
     B("KEY_ESC"): "extra_l1",  # ESC Button [1]
     B("KEY_O"): "extra_r1",  # KB Button [97, 24, 125]
     # B("KEY_LEFTMETA"): "extra_r1", # Win Button [125], Conflict with KB Button
-    # Air mappings
+}
+
+
+AYANEO_AIR_BTN_MAPPINGS: dict[int, str] = {
+    # Volume buttons come from the same keyboard
+    B("KEY_VOLUMEUP"): "key_volumeup",
+    B("KEY_VOLUMEDOWN"): "key_volumedown",
+    B("KEY_D"): "share",  # Small Button [125, 32]
+    B("KEY_F12"): "mode",  # Big Button Air [88, 97, 125]
     B("KEY_F11"): "extra_l1",  # LC Button [87, 97, 125] F11 + LCTRL + LMETA
     B("KEY_F10"): "extra_r1",  # Rc Button [68, 97, 125] F10 + LCTRL + LMETA
+    B("KEY_F16"): "pb_long", # Power Button Long Press [125, 186]
 }
 
 AYA_DEFAULT_CONF = {
     "hrtimer": True,
-    "btn_mapping": AYANEO_BTN_MAPPINGS,
+    "btn_mapping": AYANEO_DEFAULT_BTN_MAPPINGS,
     "mapping": AYANEO_DEFAULT_MAPPINGS,
 }
 ONEX_DEFAULT_CONF = {
@@ -137,7 +146,10 @@ CONFS = {
     "AYANEO 2S": {"name": "AYANEO S2", **AYA_DEFAULT_CONF},
     "GEEK": {"name": "AYANEO GEEK", **AYA_DEFAULT_CONF},
     "GEEK 1S": {"name": "AYANEO GEEK 1S", **AYA_DEFAULT_CONF},
-    "AIR": {"name": "AYANEO AIR", **AYA_DEFAULT_CONF},
+    "AIR": {"name": "AYANEO AIR",
+        **AYA_DEFAULT_CONF,
+        "btn_mapping": AYANEO_AIR_BTN_MAPPINGS
+    },
     "AIR Pro": {"name": "AYANEO AIR Pro", **AYA_DEFAULT_CONF},
     "NEXT Advance": {"name": "AYANEO NEXT Advance", **AYA_DEFAULT_CONF},
     "NEXT Lite": {"name": "AYANEO NEXT Lite", **AYA_DEFAULT_CONF},
@@ -192,7 +204,7 @@ def get_default_config(product_name: str, manufacturer: str):
     }
 
     if manufacturer == "AYA":
-        out["btn_mapping"] = AYANEO_BTN_MAPPINGS
+        out["btn_mapping"] = AYANEO_DEFAULT_BTN_MAPPINGS
         out["mapping"] = AYANEO_DEFAULT_MAPPINGS
 
     return out
