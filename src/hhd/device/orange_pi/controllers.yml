@@ -33,6 +33,8 @@ children:
   
   imu_axis:
 
+  touchpad:
+
   nintendo_mode:
     type: bool
     title: Nintendo Mode (A-B Swap)

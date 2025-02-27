@@ -1,5 +1,6 @@
 import logging
 import os
+import re
 import select
 import time
 from threading import Event as TEvent
@@ -7,6 +8,7 @@ from threading import Event as TEvent
 import evdev
 
 from hhd.controller import Multiplexer, DEBUG_MODE
+from hhd.controller.base import TouchpadAction
 from hhd.controller.lib.hide import unhide_all
 from hhd.controller.physical.evdev import B as EC
 from hhd.controller.physical.evdev import GenericGamepadEvdev
@@ -14,7 +16,15 @@ from hhd.controller.physical.imu import CombinedImu, HrtimerTrigger
 from hhd.controller.physical.rgb import LedDevice
 from hhd.plugins import Config, Context, Emitter, get_gyro_state, get_outputs
 
-from .const import AT_BTN_MAPPINGS, GAMEPAD_BTN_MAPPINGS, DEFAULT_MAPPINGS
+from .const import (
+    AT_BTN_MAPPINGS,
+    GAMEPAD_BTN_MAPPINGS,
+    DEFAULT_MAPPINGS,
+    OPI_TOUCHPAD_AXIS_MAP,
+    OPI_TOUCHPAD_BUTTON_MAP,
+    LEFT_TOUCHPAD_AXIS_MAP,
+    LEFT_TOUCHPAD_BUTTON_MAP,
+)
 
 ERROR_DELAY = 1
 SELECT_TIMEOUT = 1
@@ -26,6 +36,9 @@ GAMEPAD_PIDS = [0x028E, 0x181C]
 
 KBD_VID = 0x0001
 KBD_PID = 0x0001
+
+TOUCHPAD_VID = 0x0911
+TOUCHPAD_PID = 0x5288
 
 BACK_BUTTON_DELAY = 0.1
 
@@ -90,13 +103,15 @@ def controller_loop(
     conf: Config, should_exit: TEvent, updated: TEvent, dconf: dict, emit: Emitter
 ):
     debug = DEBUG_MODE
+    has_touchpad = dconf.get("touchpad", False)
 
     # Output
     d_producers, d_outs, d_params = get_outputs(
         conf["controller_mode"],
-        None,
+        conf["touchpad"] if has_touchpad else None,
         conf["imu"].to(bool),
         emit=emit,
+        dual_touchpad=True
     )
     motion = d_params.get("uses_motion", True) and conf.get("imu", True)
 
@@ -136,13 +151,26 @@ def controller_loop(
         btn_map=dconf.get("gamepad_mapping", GAMEPAD_BTN_MAPPINGS),
     )
 
-    multiplexer = Multiplexer(
-        trigger="analog_to_discrete",
-        dpad="analog_to_discrete",
-        share_to_qam=True,
-        nintendo_mode=conf["nintendo_mode"].to(bool),
-        emit=emit,
-        params=d_params,
+    d_touch = GenericGamepadEvdev(
+        vid=[TOUCHPAD_VID],
+        pid=[TOUCHPAD_PID],
+        name=[re.compile("OPI0002.+Touchpad")],
+        capabilities={EC("EV_KEY"): [EC("BTN_MOUSE")]},
+        btn_map=OPI_TOUCHPAD_BUTTON_MAP,
+        axis_map=OPI_TOUCHPAD_AXIS_MAP,
+        aspect_ratio=1,
+        required=True,
+    )
+
+    d_touch_left = GenericGamepadEvdev(
+        vid=[TOUCHPAD_VID],
+        pid=[TOUCHPAD_PID],
+        name=[re.compile("OPI0001.+Touchpad")],
+        capabilities={EC("EV_KEY"): [EC("BTN_MOUSE")]},
+        btn_map=LEFT_TOUCHPAD_BUTTON_MAP,
+        axis_map=LEFT_TOUCHPAD_AXIS_MAP,
+        aspect_ratio=1,
+        required=True,
     )
 
     # d_volume_btn = UInputDevice(
@@ -161,6 +189,36 @@ def controller_loop(
     d_rgb = LedDevice()
     if d_rgb.supported:
         logger.info(f"RGB Support activated through kernel driver.")
+
+    
+    if has_touchpad:
+        touch_actions = (
+            conf["touchpad.controller"]
+            if conf["touchpad.mode"].to(TouchpadAction) == "controller"
+            else conf["touchpad.emulation"]
+        )
+
+        multiplexer = Multiplexer(
+            trigger="analog_to_discrete",
+            dpad="analog_to_discrete",
+            share_to_qam=True,
+            touchpad_short=touch_actions["short"].to(TouchpadAction),
+            touchpad_hold=touch_actions["hold"].to(TouchpadAction),
+            nintendo_mode=conf["nintendo_mode"].to(bool),
+            emit=emit,
+            params=d_params,
+            qam_multi_tap=False,
+        )
+    else:
+        multiplexer = Multiplexer(
+            trigger="analog_to_discrete",
+            dpad="analog_to_discrete",
+            share_to_qam=True,
+            nintendo_mode=conf["nintendo_mode"].to(bool),
+            emit=emit,
+            params=d_params,
+            qam_multi_tap=False,
+        )
 
     REPORT_FREQ_MIN = 25
     REPORT_FREQ_MAX = 400
@@ -191,6 +249,9 @@ def controller_loop(
                 start_imu = d_timer.open()
             if start_imu:
                 prepare(d_imu)
+        if has_touchpad and d_params["uses_touch"]:
+            prepare(d_touch)
+            prepare(d_touch_left)
         prepare(d_kbd_1)
         prepare(d_kbd_2)
         for d in d_producers:
