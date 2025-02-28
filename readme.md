@@ -7,7 +7,7 @@
 </h1>
 
 [![PyPI package version](https://badge.fury.io/py/hhd.svg)](https://pypi.org/project/hhd/)
-[![Python version 3.10+](https://img.shields.io/badge/python-3.10%2B-informational.svg)](https://pypi.org/project/pasteur/)
+[![Python version 3.12+](https://img.shields.io/badge/python-3.12%2B-informational.svg)](https://pypi.org/project/pasteur/)
 [![Code style is Black](https://img.shields.io/badge/code%20style-black-black.svg)](https://github.com/psf/black)
 <!-- [![]()]() -->
 
