@@ -578,6 +578,7 @@ class Multiplexer:
         startselect_chord: str = "disabled",
     ) -> None:
         self.swap_guide = swap_guide
+        self.guide_to_paddles = os.environ.get('HHD_GUIDE_TO_PADDLES', False)
         self.trigger = trigger
         self.dpad = dpad
         self.led = led
@@ -974,6 +975,12 @@ class Multiplexer:
                                 if self.swap_guide == "start_is_keyboard":
                                     ev["code"] = "start"
 
+                    if self.guide_to_paddles:
+                        if ev["code"] == "mode":
+                            ev["code"] = "extra_l2"
+                        elif ev["code"] == "share":
+                            ev["code"] = "extra_r2"
+                    
                     if (
                         self.startselect_chord != "disabled" and ev["code"] == "select"
                     ) or (
